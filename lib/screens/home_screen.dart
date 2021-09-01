@@ -108,12 +108,13 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _getDataFomServer(int index) async {
+ 
     var formData = FormData.fromMap({
       'user_id': "108",
       'offset': index,
       'type': "popular",
     });
-
+    //print(formData);
     try {
       Response response = await _dio!.post("/getdata.php", data: formData);
 

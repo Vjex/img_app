@@ -50,8 +50,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
   }
 
   @override
-  void dispose() {
-    _firstNameController.dispose();
+  void dispose() {  
+    _firstNameController.dispose(); 
     _lastNameController.dispose();
     _emailNameController.dispose();
     _phoneController.dispose();
@@ -68,9 +68,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
     ImageModel _imagesModel = dataGot['data'] as ImageModel;
     if (_imagesModelList.length == 0) {
       _imagesModelList.add(_imagesModel);
-
+      print(_imagesModel.imgUrl);
       _fileToUpload = await _urlToFile(_imagesModel.imgUrl);
-      print(_fileToUpload);
+    //  print(_fileToUpload);
     }
     super.didChangeDependencies();
   }
@@ -300,7 +300,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   }
 
   Future<File> _urlToFile(String imageUrl) async {
-    print(imageUrl);
+   // print(imageUrl);
 // generate random number.
     var rng = new Random();
 // get temporary directory of device.
@@ -308,11 +308,11 @@ class _DetailsScreenState extends State<DetailsScreen> {
 // get temporary path from temporary directory.
     String tempPath = tempDir.path;
 // create a new file in temporary path with random file name.
-    File file = new File('$tempPath' + (rng.nextInt(100)).toString() + '.jpg');
+    File file = new File('$tempPath' + (rng.nextInt(10000)).toString() + '.jpg');
 // call http.get method and pass imageUrl into it to get response.
     Response response = await Dio().get(imageUrl);
 // write bodyBytes received in response to file.
-    print(response.data);
+   // print(response.data);
     await file.writeAsString(response.data);
 // now return the file which is created with random name in
 // temporary directory and image bytes from response is written to // that file.
@@ -335,7 +335,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       'phone': "popular",
       "user_image": await MultipartFile.fromFile(imgFile.path),
     });
-    print(formData);
+   // print(formData);
     try {
       Response response = await _dio!.post("/savedata.php", data: formData);
 
