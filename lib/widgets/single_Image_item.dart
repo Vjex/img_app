@@ -5,14 +5,16 @@ import 'package:image_app/models/image_model.dart';
 
 class SingleImageItem extends StatelessWidget {
   final ImageModel imageModel;
-  SingleImageItem({Key? key, required this.imageModel}) : super(key: key);
+  final int calledBy;
+  SingleImageItem({Key? key, required this.imageModel, this.calledBy = 1})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     ///  print(imageModel.imgUrl);
     return InkWell(
       onTap: () {
-        _onTapImage(context);
+        if (calledBy == 1) _onTapImage(context);
       },
       child: Container(
         margin: const EdgeInsets.all(5),

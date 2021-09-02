@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:typed_data';
 
+import 'package:flutter/services.dart';
 import 'package:path_provider/path_provider.dart';
 import 'dart:io';
 import 'dart:math';
@@ -34,6 +36,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
   //Image File To Upload
   late File _fileToUpload;
+  bool _isInitialised = false;
 
   ////Controllers
   TextEditingController _firstNameController = TextEditingController();
@@ -50,8 +53,8 @@ class _DetailsScreenState extends State<DetailsScreen> {
   }
 
   @override
-  void dispose() {  
-    _firstNameController.dispose(); 
+  void dispose() {
+    _firstNameController.dispose();
     _lastNameController.dispose();
     _emailNameController.dispose();
     _phoneController.dispose();
@@ -70,7 +73,9 @@ class _DetailsScreenState extends State<DetailsScreen> {
       _imagesModelList.add(_imagesModel);
       print(_imagesModel.imgUrl);
       _fileToUpload = await _urlToFile(_imagesModel.imgUrl);
-    //  print(_fileToUpload);
+      _isInitialised = true;
+      setState(() {});
+      //  print(_fileToUpload);
     }
     super.didChangeDependencies();
   }
@@ -87,7 +92,19 @@ class _DetailsScreenState extends State<DetailsScreen> {
                 child: Container(
                   child: Column(
                     children: [
-                      SingleImageItem(imageModel: _imagesModelList[0]),
+                      SingleImageItem(
+                        imageModel: _imagesModelList[0],
+                        calledBy: 2,
+                      ),
+                      // if(_fileToUpload != null)
+                      // if (_isInitialised)
+                      //   Container(
+                      //     margin: const EdgeInsets.all(5),
+                      //     child: Image(
+                      //       image: FileImage(_fileToUpload),
+                      //     ),
+                      //   ),
+
                       Padding(
                         padding: const EdgeInsets.symmetric(
                             vertical: 5.0, horizontal: 15),
@@ -241,7 +258,20 @@ class _DetailsScreenState extends State<DetailsScreen> {
       String email = _firstNameController.text;
       String phone = _firstNameController.text;
       // if(_fileToUpload != null)
-      _submitDataAtServer(firstname, lastname, email, phone, _fileToUpload);
+      if (_isInitialised) {
+        _submitDataAtServer(firstname, lastname, email, phone, _fileToUpload);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.red,
+            content: new Text(
+              'Submit again after a second file is not loaded.',
+              style: TextStyle(color: Colors.white),
+            ),
+            elevation: 50,
+          ),
+        );
+      }
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -300,7 +330,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
   }
 
   Future<File> _urlToFile(String imageUrl) async {
-   // print(imageUrl);
+    // print(imageUrl);
 // generate random number.
     var rng = new Random();
 // get temporary directory of device.
@@ -308,14 +338,17 @@ class _DetailsScreenState extends State<DetailsScreen> {
 // get temporary path from temporary directory.
     String tempPath = tempDir.path;
 // create a new file in temporary path with random file name.
-    File file = new File('$tempPath' + (rng.nextInt(10000)).toString() + '.jpg');
-// call http.get method and pass imageUrl into it to get response.
-    Response response = await Dio().get(imageUrl);
-// write bodyBytes received in response to file.
-   // print(response.data);
-    await file.writeAsString(response.data);
-// now return the file which is created with random name in
-// temporary directory and image bytes from response is written to // that file.
+    File file =
+        new File('$tempPath' + (rng.nextInt(10000)).toString() + '.jpg');
+
+    final ByteData imageData =
+        await NetworkAssetBundle(Uri.parse(imageUrl)).load("");
+    final Uint8List bytes = imageData.buffer.asUint8List();
+
+    await file.writeAsBytes(bytes);
+
+// now returning the file which is created with random name in
+
     return file;
   }
 
@@ -335,7 +368,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
       'phone': "popular",
       "user_image": await MultipartFile.fromFile(imgFile.path),
     });
-   // print(formData);
+    // print(formData);
     try {
       Response response = await _dio!.post("/savedata.php", data: formData);
 
