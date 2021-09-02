@@ -347,7 +347,7 @@ class _DetailsScreenState extends State<DetailsScreen> {
 
     await file.writeAsBytes(bytes);
 
-// now returning the file which is created with random name in
+    // now returning the file which is created with random name in
 
     return file;
   }
